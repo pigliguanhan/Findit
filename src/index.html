@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Campus Lost &amp; Found</title>
+    <link rel="stylesheet" href="styles.css?v=header-width" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-main">
+        <p class="eyebrow">Campus Lost &amp; Found</p>
+        <h1>Found item catalogue</h1>
+        <p class="lede">
+          Visitors can browse published items. Staff can report a found item and
+          publish a draft so it appears on the public list.
+        </p>
+      </div>
+      <div class="role-switch" aria-label="Prototype role">
+        <span class="role-label">Viewing as</span>
+        <div class="role-toggle" role="group" aria-label="Select role">
+          <button type="button" data-role="visitor-1">Visitor 1</button>
+          <button type="button" data-role="visitor-2">Visitor 2</button>
+          <button type="button" data-role="visitor-3">Visitor 3</button>
+          <button type="button" data-role="staff">Staff</button>
+        </div>
+        <div class="staff-tools">
+          <button type="button" id="reset-system" class="btn btn-reset" hidden>
+            Reset System
+          </button>
+          <button type="button" id="initialize-system" class="btn btn-reset" hidden>
+            Initialize
+          </button>
+          <button type="button" id="run-tests" class="btn btn-reset" hidden>
+            Run tests
+          </button>
+          <button type="button" id="reset-tests" class="btn btn-reset" hidden>
+            Reset tests
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-layout">
+      <aside id="item-sidebar" class="sidebar">
+        <section id="view-list" class="view" aria-labelledby="list-heading">
+          <div class="view-header">
+            <h2 id="list-heading">Published items</h2>
+            <p id="list-helper" class="helper">
+              Only published items are shown to visitors.
+            </p>
+          </div>
+          <div id="item-list" class="item-grid"></div>
+        </section>
+      </aside>
+
+      <main>
+        <nav class="site-nav" aria-label="Primary">
+          <button type="button" class="nav-link is-active" data-view="list">
+            Browse items
+          </button>
+          <button type="button" class="nav-link" id="nav-mine" data-view="mine" hidden>
+            My claims
+          </button>
+          <button type="button" class="nav-link" id="nav-report" data-view="report" hidden>
+            Report found item
+          </button>
+          <button type="button" class="nav-link" id="nav-review" data-view="review" hidden>
+            Review claims
+          </button>
+          <button type="button" class="nav-link" id="nav-history" data-view="history" hidden>
+            Archived claims
+          </button>
+          <button type="button" class="nav-link" id="nav-tests" data-view="tests" hidden>
+            Test results
+          </button>
+        </nav>
+
+        <p id="banner" class="banner" hidden role="status"></p>
+
+        <section id="view-detail" class="view detail-panel" hidden aria-labelledby="detail-heading">
+          <article id="item-detail" class="detail-card"></article>
+        </section>
+
+        <section id="view-claim" class="view" hidden aria-labelledby="claim-heading">
+          <div class="view-header">
+            <h2 id="claim-heading">Claim item</h2>
+            <p class="helper">
+              Submit private evidence of ownership. Other visitors will not see
+              your claim details.
+            </p>
+          </div>
+          <form id="claim-form" class="report-form" novalidate>
+            <p id="claim-form-error" class="form-error" hidden></p>
+            <input id="claim-item-id" name="itemId" type="hidden" />
+
+            <label>
+              Claimant name
+              <input
+                id="claimantName"
+                name="claimantName"
+                type="text"
+                maxlength="80"
+                autocomplete="name"
+                required
+              />
+            </label>
+
+            <label>
+              Contact
+              <input
+                id="contact"
+                name="contact"
+                type="text"
+                maxlength="120"
+                autocomplete="off"
+                required
+              />
+            </label>
+
+            <label class="wide-field">
+              Evidence
+              <textarea
+                id="evidence"
+                name="evidence"
+                rows="5"
+                maxlength="500"
+                required
+              ></textarea>
+              <span class="field-hint">Private. Other visitors cannot see this.</span>
+            </label>
+
+            <div class="form-actions">
+              <button type="button" class="btn" id="retract-claim">Retract claim</button>
+              <button type="submit" class="btn btn-primary">Submit claim</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="view-item-claims" class="view item-claims-panel" hidden aria-labelledby="item-claims-heading">
+          <h3 id="item-claims-heading">Your claims</h3>
+          <div id="item-claims" class="claim-list"></div>
+        </section>
+
+        <section id="view-review" class="view" hidden aria-labelledby="review-heading">
+          <div class="view-header">
+            <h2 id="review-heading">Review claims</h2>
+            <p class="helper">
+              Submitted claims only. Open a claim for full details before
+              approving or rejecting.
+            </p>
+          </div>
+          <div class="claim-toolbar">
+            <div
+              id="review-claim-sort"
+              class="claim-sort"
+              role="group"
+              aria-label="Sort claims"
+            >
+              <span class="sort-label">Sort</span>
+              <button type="button" class="is-active" data-sort="new" aria-pressed="true">
+                New
+              </button>
+              <button type="button" data-sort="old" aria-pressed="false">
+                Old
+              </button>
+            </div>
+          </div>
+          <div id="review-claim-list" class="claim-list"></div>
+        </section>
+
+        <section id="view-history" class="view" hidden aria-labelledby="history-heading">
+          <div class="view-header">
+            <h2 id="history-heading">Archived claims</h2>
+            <p class="helper">
+              Finalised claims from every visitor.
+            </p>
+          </div>
+          <div class="claim-toolbar">
+            <div
+              id="history-claim-filter"
+              class="claim-filter"
+              role="group"
+              aria-label="Filter archived claims"
+            >
+              <button type="button" class="is-active" data-history-filter="all" aria-pressed="true">
+                All
+              </button>
+              <button type="button" data-history-filter="approved" aria-pressed="false">
+                Approved
+              </button>
+              <button type="button" data-history-filter="disapproved" aria-pressed="false">
+                Disapproved
+              </button>
+            </div>
+            <div
+              id="history-claim-sort"
+              class="claim-sort"
+              role="group"
+              aria-label="Sort archived claims"
+            >
+              <span class="sort-label">Sort</span>
+              <button type="button" class="is-active" data-sort="new" aria-pressed="true">
+                New
+              </button>
+              <button type="button" data-sort="old" aria-pressed="false">
+                Old
+              </button>
+            </div>
+          </div>
+          <div id="history-claim-list" class="claim-list"></div>
+        </section>
+
+        <section id="view-claim-detail" class="view" hidden aria-labelledby="claim-detail-heading">
+          <div class="view-header claim-detail-header">
+            <button type="button" id="claim-detail-back" class="btn">Back</button>
+            <div>
+              <h2 id="claim-detail-heading">Claim details</h2>
+              <p class="helper">
+                Review the full claim here. Approving reserves the item and
+                blocks any further claims for it.
+              </p>
+            </div>
+          </div>
+          <article id="claim-detail" class="detail-card"></article>
+        </section>
+
+        <section id="view-mine" class="view" hidden aria-labelledby="mine-heading">
+          <div class="view-header">
+            <h2 id="mine-heading">My claims</h2>
+            <p class="helper">
+              These are the claims you submitted. Other visitors cannot see them.
+            </p>
+          </div>
+          <div class="claim-toolbar">
+            <div
+              id="claim-filter"
+              class="claim-filter"
+              role="group"
+              aria-label="Filter claims"
+            >
+              <button type="button" class="is-active" data-claim-filter="all" aria-pressed="true">
+                All
+              </button>
+              <button type="button" data-claim-filter="pending" aria-pressed="false">
+                Pending
+              </button>
+              <button type="button" data-claim-filter="approved" aria-pressed="false">
+                Approved
+              </button>
+              <button type="button" data-claim-filter="disapproved" aria-pressed="false">
+                Disapproved
+              </button>
+              <button type="button" data-claim-filter="finalised" aria-pressed="false">
+                Finalised
+              </button>
+            </div>
+            <div
+              id="claim-sort"
+              class="claim-sort"
+              role="group"
+              aria-label="Sort claims"
+            >
+              <span class="sort-label">Sort</span>
+              <button type="button" class="is-active" data-sort="new" aria-pressed="true">
+                New
+              </button>
+              <button type="button" data-sort="old" aria-pressed="false">
+                Old
+              </button>
+            </div>
+          </div>
+          <div id="my-claim-list" class="my-claim-results"></div>
+        </section>
+
+        <section id="view-tests" class="view" hidden aria-labelledby="tests-heading">
+          <div class="view-header">
+            <h2 id="tests-heading">Test results</h2>
+            <p id="tests-helper" class="helper">
+              Run tests from Staff to see pass and fail results for each ticket.
+            </p>
+          </div>
+          <div id="tests-tickets" class="tests-ticket-buttons"></div>
+          <div id="tests-list-wrap" hidden>
+            <button type="button" id="tests-back" class="btn">Back</button>
+            <div id="tests-list" class="claim-list"></div>
+          </div>
+          <article id="tests-detail" class="detail-card" hidden></article>
+        </section>
+
+        <section id="view-report" class="view" hidden aria-labelledby="report-heading">
+          <div class="view-header">
+            <h2 id="report-heading">Report found item</h2>
+            <p class="helper">
+              Saved items start as a draft. Visitors will not see a draft until you
+              publish it.
+            </p>
+          </div>
+          <form id="report-form" class="report-form" novalidate>
+            <p id="form-error" class="form-error" hidden></p>
+
+            <label>
+              Item name
+              <input
+                id="name"
+                name="name"
+                type="text"
+                maxlength="80"
+                autocomplete="off"
+                required
+              />
+            </label>
+
+            <label>
+              Category
+              <select id="category" name="category" required>
+                <option value="">Select a category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="ID / Cards">ID / Cards</option>
+                <option value="Keys">Keys</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Bag">Bag</option>
+                <option value="Stationery">Stationery</option>
+                <option value="Other">Other</option>
+                <option value="Drink Bottle">Drink Bottle</option>
+              </select>
+            </label>
+
+            <label>
+              Found location
+              <input
+                id="foundLocation"
+                name="foundLocation"
+                type="text"
+                maxlength="120"
+                autocomplete="off"
+                required
+              />
+            </label>
+
+            <div class="date-field" id="found-date-field">
+              <span class="date-field-label">Found date</span>
+              <div class="date-row">
+                <input
+                  id="found-day"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="2"
+                  placeholder="DD"
+                  autocomplete="off"
+                  aria-label="Day"
+                />
+                <span class="date-sep" aria-hidden="true">/</span>
+                <input
+                  id="found-month"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="2"
+                  placeholder="MM"
+                  autocomplete="off"
+                  aria-label="Month"
+                />
+                <span class="date-sep" aria-hidden="true">/</span>
+                <input
+                  id="found-year"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="4"
+                  placeholder="YYYY"
+                  autocomplete="off"
+                  aria-label="Year"
+                />
+                <button type="button" class="btn" id="found-date-calendar">
+                  Calendar
+                </button>
+                <input
+                  id="foundDatePicker"
+                  class="date-picker"
+                  type="date"
+                  tabindex="-1"
+                  aria-label="Choose date from calendar"
+                />
+                <input id="foundDate" name="foundDate" type="hidden" />
+              </div>
+            </div>
+
+            <label>
+              Public description
+              <textarea
+                id="publicDescription"
+                name="publicDescription"
+                rows="5"
+                maxlength="500"
+                required
+              ></textarea>
+              <span class="field-hint">Visible to visitors after the item is published.</span>
+            </label>
+
+            <label>
+              Private clue
+              <textarea
+                id="privateClue"
+                name="privateClue"
+                rows="5"
+                maxlength="500"
+                required
+              ></textarea>
+              <span class="field-hint">Staff only. Never shown on the visitor view.</span>
+            </label>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save draft</button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js?v=initialize"></script>
+    <script src="tests.js"></script>
+  </body>
+</html>
